@@ -1,22 +1,13 @@
-###
-# swagger-ui-builder - https://github.com/swagger-api/swagger-ui/
-# Container for building the swagger-ui static site
-#
-# Build: docker build -t swagger-ui-builder .
-# Run:   docker run -v $PWD/dist:/build/dist swagger-ui-builder
-#
-###
+FROM nginx:stable-alpine
+MAINTAINER Sergey Nuzhdin <sergey@cantemo.com>
 
-FROM    ubuntu:14.04
-MAINTAINER dnephin@gmail.com
+INSTALL_DIR=/opt/swagger-ui
 
-ENV     DEBIAN_FRONTEND noninteractive
+RUN mkdir -p $INSTALL_DIR
 
-RUN     apt-get update && apt-get install -y git npm nodejs openjdk-7-jre
-RUN     ln -s /usr/bin/nodejs /usr/local/bin/node
+WORKDIR $INSTALL_DIR
 
-WORKDIR /build
-ADD     package.json    /build/package.json
-RUN     npm install
-ADD     .   /build
-CMD     ./node_modules/gulp/bin/gulp.js serve
+ADD . $INSTALL_DIR
+ADD ./nginx-site.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
